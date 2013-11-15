@@ -65,7 +65,7 @@ typedef enum SRRecorderStyle SRRecorderStyle;
 	
 	BOOL				allowsKeyOnly;
 	BOOL				escapeKeysRecord;
-	
+	BOOL                _allowsAllKeys;
 	NSSet               *cancelCharacterSet;
 	
     SRValidator         *validator;
@@ -129,6 +129,8 @@ typedef enum SRRecorderStyle SRRecorderStyle;
 
 - (NSString *)keyChars;
 - (NSString *)keyCharsIgnoringModifiers;
+
+@property (nonatomic) BOOL allowsAllKeys;
 
 @end
 

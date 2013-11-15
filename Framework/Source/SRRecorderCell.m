@@ -46,6 +46,7 @@
 #pragma mark -
 
 @implementation SRRecorderCell
+@synthesize allowsAllKeys=_allowsAllKeys;
 
 - (id)init
 {

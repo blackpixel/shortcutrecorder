@@ -63,6 +63,10 @@
             }
 			return YES;
 		}
+        else if([delegate allowsAllKeys])
+        {
+            return NO;
+        }
 	}
 	
 	// then our implementation...
