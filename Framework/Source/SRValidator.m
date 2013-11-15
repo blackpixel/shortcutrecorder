@@ -63,7 +63,7 @@
             }
 			return YES;
 		}
-        else if([delegate allowsAllKeys])
+        else if([delegate allowsAllKeys] == YES)
         {
             return NO;
         }
