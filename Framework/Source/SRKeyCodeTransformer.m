@@ -199,6 +199,60 @@ static NSArray              *padKeysArray        = nil;
 	return ( isPadKey ? [NSString stringWithFormat: SRLoc(@"Pad %@"), keyString] : keyString );
 }
 
+- (id) transformedASCIIValue:(id)value
+{
+    if ( ![value isKindOfClass:[NSNumber class]] )
+        return nil;
+    
+    // Can be -1 when empty
+    NSInteger keyCode = [value shortValue];
+	if ( keyCode < 0 ) return nil;
+	
+	// We have some special gylphs for some special keys...
+	NSString *unmappedString = [keyCodeToStringDict objectForKey: SRInt( keyCode )];
+	if ( unmappedString != nil ) return unmappedString;
+	
+	BOOL isPadKey = [padKeysArray containsObject: SRInt( keyCode )];
+	
+	OSStatus err;
+	TISInputSourceRef tisSource = TISCopyCurrentKeyboardInputSource();
+	if(!tisSource) return nil;
+	
+	CFDataRef layoutData = nil;
+	UInt32 keysDown = 0;
+	
+	// For non-unicode layouts such as Chinese, Japanese, and Korean, get the ASCII capable layout
+	if(!layoutData) {
+		tisSource = TISCopyCurrentASCIICapableKeyboardLayoutInputSource();
+		layoutData = (CFDataRef)TISGetInputSourceProperty(tisSource, kTISPropertyUnicodeKeyLayoutData);
+		CFRelease(tisSource);
+	}
+    
+	if (!layoutData) return nil;
+	
+	const UCKeyboardLayout *keyLayout = (const UCKeyboardLayout *)CFDataGetBytePtr(layoutData);
+	
+	UniCharCount length = 4, realLength;
+	UniChar chars[4];
+	
+	err = UCKeyTranslate( keyLayout,
+						 keyCode,
+						 kUCKeyActionDisplay,
+						 0,
+						 LMGetKbdType(),
+						 kUCKeyTranslateNoDeadKeysBit,
+						 &keysDown,
+						 length,
+						 &realLength,
+						 chars);
+	
+	if ( err != noErr ) return nil;
+	
+	NSString *keyString = [[NSString stringWithCharacters:chars length:1] uppercaseString];
+	
+	return ( isPadKey ? [NSString stringWithFormat: SRLoc(@"Pad %@"), keyString] : keyString );
+}
+
 //---------------------------------------------------------- 
 //  reverseTransformedValue: 
 //---------------------------------------------------------- 
